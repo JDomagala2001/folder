@@ -1,0 +1,370 @@
+import cv2 
+import random
+import pygame 
+import os 
+import sys
+
+from pygame import display
+
+pygame.init()
+ 
+os.environ['SDL_VIDEO_CENTERED'] = '1' #wycentruj okno
+ 
+ekran_szerokosc = 900
+ekran_wysokosc = 600
+screen = pygame.display.set_mode((ekran_szerokosc, ekran_wysokosc))
+ 
+def tekst_format(tekst, tekstCzcionka, tekstRozmiar, tekstKolor):
+    nowaCzcionka = pygame.font.SysFont(tekstCzcionka, tekstRozmiar)
+    nowyTekst = nowaCzcionka.render(tekst, 0, tekstKolor)
+ 
+    return nowyTekst
+
+bialy = (255, 255, 255) #zadeklarowanie kolorów
+czarny = (0, 0, 0)
+niebiski = (0, 0, 255)
+zolty = (255, 255, 0)
+ 
+czcionka = "arial.ttf"
+  
+
+FPS = 30
+wynik = False
+zasady = False
+trud = False
+
+def main_menu():
+
+        global pustyX, pustyY
+        menu = True
+        wynik = False
+        wybrany = "start"
+        while menu:
+            for event in pygame.event.get():
+        
+                screen.fill(niebiski)
+                tytul = tekst_format("Puzzle", czcionka, 90, zolty)
+                if wybrany == "start":
+                    tekst_start = tekst_format("START", czcionka, 75, bialy)
+                else:
+                    tekst_start = tekst_format("START", czcionka, 75, czarny)
+                if wybrany == "zasady":
+                    tekst_zasady = tekst_format("ZASADY", czcionka, 75, bialy)
+                else:
+                    tekst_zasady = tekst_format("ZASADY", czcionka, 75, czarny)
+                if wybrany == "quit":
+                    tekst_wyjdz = tekst_format("WYJDŹ", czcionka, 75, bialy)
+                else:
+                    tekst_wyjdz = tekst_format("WYJDŹ", czcionka, 75, czarny)
+        
+                tytul_rect = tytul.get_rect()
+                start_rect = tekst_start.get_rect()
+                zasady_rect = tekst_zasady.get_rect()
+                quit_rect = tekst_wyjdz.get_rect()
+
+                screen.blit(tytul, (ekran_szerokosc/2 - (tytul_rect[2]/2), 80))
+                screen.blit(tekst_start, (ekran_szerokosc/2 - (start_rect[2]/2), 300))
+                screen.blit(tekst_zasady, (ekran_szerokosc/2 - (zasady_rect[2]/2), 360))
+                screen.blit(tekst_wyjdz, (ekran_szerokosc/2 - (quit_rect[2]/2), 420))
+
+                rext = pygame.mouse.get_pos()
+                start1 = pygame.Rect(screen.blit(tekst_start, (ekran_szerokosc/2 - (start_rect[2]/2), 300)))
+                zasady1 = pygame.Rect(screen.blit(tekst_zasady, (ekran_szerokosc/2 - (zasady_rect[2]/2), 360)))
+                quit1 = pygame.Rect(screen.blit(tekst_wyjdz, (ekran_szerokosc/2 - (quit_rect[2]/2), 420)))
+                koli1 = start1.collidepoint(rext)
+                koli2 = zasady1.collidepoint(rext)
+                koli3 = quit1.collidepoint(rext)
+                        
+                if koli1 == True:
+                    wybrany = "start"
+                elif koli2 == True:
+                    wybrany = "zasady"
+                elif koli3 == True:
+                    wybrany = "quit"
+                zasady = False
+                trud = False
+                while wynik:
+                    for event in pygame.event.get():
+                        screen.fill(niebiski)
+                        tekst = tekst_format("Gratulacje", czcionka, 75, zolty)
+                        tekst_rect=tekst.get_rect()
+                        screen.blit(tekst, (ekran_szerokosc/2 - (tekst_rect[2]/2), 60))
+                        tekst2 = tekst_format("Ukończyłeś grę w {} ruchach".format(ruch) , czcionka, 75, zolty)
+                        tekst2_rect = tekst2.get_rect()
+                        screen.blit(tekst2, (ekran_szerokosc/2 - (tekst2_rect[2]/2), 120))
+                        tekst3 = tekst_format("Czy chcesz zagrać jescze raz?", czcionka, 75, zolty)
+                        tekst3_rect = tekst3.get_rect()
+                        screen.blit(tekst3, (ekran_szerokosc/2 - (tekst3_rect[2]/2), 180))
+                        if wybrany == "wroc":
+                            wroc = tekst_format("Tak", czcionka, 75, bialy)
+                        else:
+                            wroc = tekst_format("Tak", czcionka, 75, czarny)
+                        if wybrany == "wyjdz":
+                            wyjdz = tekst_format("Nie", czcionka, 75, bialy)
+                        else:
+                            wyjdz = tekst_format("Nie", czcionka, 75, czarny)
+                        wroc_rect = wroc.get_rect()
+                        screen.blit(wroc, (ekran_szerokosc/2 - (wroc_rect[2]/2), 300))
+                        wyjdz_rect = wyjdz.get_rect()
+                        screen.blit(wyjdz, (ekran_szerokosc/2 - (wyjdz_rect[2]/2), 360))
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            quit()
+
+                        rext = pygame.mouse.get_pos()
+                        wyjdz1 = pygame.Rect(screen.blit(wroc, (ekran_szerokosc/2 - (wroc_rect[2]/2), 300)))
+                        wroc1 = pygame.Rect(screen.blit(wyjdz, (ekran_szerokosc/2 - (wyjdz_rect[2]/2), 360)))
+                        koli1 = wyjdz1.collidepoint(rext)
+                        koli2 = wroc1.collidepoint(rext)
+                        
+                        if koli1 == True:
+                            wybrany = "wroc"
+                        elif koli2 == True:
+                            wybrany = "wyjdz"
+
+                        elif event.type == pygame.MOUSEBUTTONDOWN:
+                            if event.button == 1:
+                                if wybrany == "wroc":
+                                    wybrany = "start"
+                                    wynik = False
+                                elif wybrany == "wyjdz":
+                                    pygame.quit()
+                                    quit()
+                    pygame.display.update()
+                    
+
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if event.button == 1:
+                        if wybrany == "start":
+                            wybrany = "latwy"
+                            trud = True
+                            
+                            while trud:
+                    
+                                screen.fill(niebiski)
+                                for event in pygame.event.get(): #poziomy trudności
+                                    if event.type == pygame.QUIT:
+                                        pygame.quit()
+                                        quit()
+                                    
+                                    if event.type == pygame.MOUSEBUTTONDOWN:
+                                        if event.button == 1:
+                                            if wybrany == "latwy":
+                                                KLOCEK_SZEOKOSC = 300
+                                                KLOCEK_WYSOKOSC = 200
+                                                KOLUMNY = 3
+                                                WIERSZE = 3
+                                            if wybrany == "sredni":
+                                                KLOCEK_SZEOKOSC = 225
+                                                KLOCEK_WYSOKOSC = 200
+                                                KOLUMNY = 4
+                                                WIERSZE = 3
+                                            if wybrany == "trudny":
+                                                KLOCEK_SZEOKOSC = 225
+                                                KLOCEK_WYSOKOSC = 150
+                                                KOLUMNY = 4
+                                                WIERSZE = 4
+                                            
+                                            cv2.waitKey() #robienie zdjęcia
+                                            przycisk = cv2.waitKey(1)
+                                            webcam = cv2.VideoCapture(0)
+                                            while True:
+                                                    check, zrzut = webcam.read()
+                                                    cv2.imshow("Capturing", zrzut)
+                                                    cv2.moveWindow("Capturing", 650, 240)
+                                                    przycisk = cv2.waitKey(1)
+                                                    if przycisk == ord('s'): 
+                                                        cv2.destroyWindow("Capturing")
+                                                        cv2.imwrite(filename = 'saved_img.jpg', img = zrzut)
+                                                        src = cv2.imread('saved_img.jpg')
+                                                        rozmiar = (900,600)
+                                                        output = cv2.resize(src, rozmiar)
+                                                        cv2.imwrite(filename = 'saved_img.jpg',img = output)
+                                                        webcam.release()
+                                                        break
+                                                    elif przycisk == ord('q'):
+                                                        webcam.release()
+                                                        cv2.destroyAllWindows()
+                                                        return 0
+
+                                            Nazwa_Pliku = "saved_img.jpg" 
+                                            Rozmiar_Pliku = (900, 600)
+
+                                            Pusty_Klocek = (KOLUMNY-1, WIERSZE-1) 
+
+                                            obwódka_pozioma = pygame.Surface((KLOCEK_SZEOKOSC, 1))
+                                            obwódka_pozioma.fill(czarny)
+                                            obwódka_pionowa = pygame.Surface((1, KLOCEK_WYSOKOSC))
+                                            obwódka_pionowa.fill(czarny)
+
+                                            zdjecie = pygame.image.load(Nazwa_Pliku)
+                                            plytki = {}
+                                            for k in range(KOLUMNY) : #podzielenie zdjęcia na płytki
+                                                for w in range(WIERSZE) :
+                                                    plytka = zdjecie.subsurface (k*KLOCEK_SZEOKOSC, w*KLOCEK_WYSOKOSC,KLOCEK_SZEOKOSC, KLOCEK_WYSOKOSC)
+                                                    plytki [(k, w)] = plytka
+                                                    if (k, w) != Pusty_Klocek:
+                                                        plytka.blit(obwódka_pozioma, (0, 0))
+                                                        plytka.blit(obwódka_pozioma, (0, KLOCEK_WYSOKOSC-1))
+                                                        plytka.blit(obwódka_pionowa, (0, 0))
+                                                        plytka.blit(obwódka_pionowa, (KLOCEK_SZEOKOSC-1, 0))
+
+                                            plytki[Pusty_Klocek].fill(czarny)
+
+                                            wspol = {(kol, wrsz): (kol, wrsz) #współrzędne płytek
+                                                        for kol in range(KOLUMNY) for wrsz in range(WIERSZE)}
+                                            wspolorg = {(kol, wrsz): (kol, wrsz) 
+                                                        for kol in range(KOLUMNY) for wrsz in range(WIERSZE)}
+
+                                            (pustyX, pustyY) = Pusty_Klocek
+
+                                            pygame.init()
+                                            pokaz = pygame.display.set_mode(Rozmiar_Pliku)
+                                            pygame.display.set_caption("Puzzle")
+                                            pokaz.blit (zdjecie, (0, 0))
+                                            pygame.display.flip()
+                                            
+                                            def zamien (k, w) :
+                                                global pustyX, pustyY 
+                                                pokaz.blit(plytki[wspol[(k, w)]], (pustyX*KLOCEK_SZEOKOSC, pustyY*KLOCEK_WYSOKOSC))
+                                                pokaz.blit(plytki[Pusty_Klocek], (k*KLOCEK_SZEOKOSC, w*KLOCEK_WYSOKOSC))
+                                                wspol[(pustyX, pustyY)] = wspol[(k, w)]
+                                                wspol[(k, w)] = Pusty_Klocek
+                                                (pustyX, pustyY) = (k, w)
+                                                pygame.display.flip()
+
+                                            def mieszanie() :
+                                                global pustyX, pustyY
+                                                last_r = 0 
+                                                for i in range(75):
+                                                    
+                                                    while True:
+                                                        w = random.randint(1, 4)
+                                                        if (last_r + w == 5):
+                                                            continue
+                                                        if w == 1 and (pustyX > 0):
+                                                            zamien(pustyX - 1, pustyY) 
+                                                        elif w == 4 and (pustyX < KOLUMNY - 1):
+                                                            zamien(pustyX + 1, pustyY) 
+                                                        elif w == 2 and (pustyY > 0):
+                                                            zamien(pustyX, pustyY - 1) 
+                                                        elif w == 3 and (pustyY < WIERSZE - 1):
+                                                            zamien(pustyX, pustyY + 1) 
+                                                        else:
+                                                            continue
+                                                        last_r = w
+                                                        break
+                                            start = True
+                                            gra = True
+                                            ruch = int(0)
+                                            while gra:
+                                                event = pygame.event.wait()
+                                                if event.type == pygame.QUIT:
+                                                    pygame.quit()
+                                                    sys.exit()
+                                                elif event.type == pygame.MOUSEBUTTONDOWN :
+                                                    if start:
+                                                        mieszanie()
+                                                        start = False
+                                                    elif event.button == 1:
+                                                        mouse_pos = pygame.mouse.get_pos()
+                                                        ruch = ruch + 1
+                                                        k = mouse_pos[0] // KLOCEK_SZEOKOSC
+                                                        w = mouse_pos[1] // KLOCEK_WYSOKOSC
+                                                        if (    (abs(k-pustyX) == 1 and w == pustyY) or (abs(w-pustyY) == 1 and k == pustyX)):
+                                                            zamien (k, w)
+                                                        if wspolorg == wspol:
+                                                            gra = False
+                                                            trud = False
+                                                            wynik = True
+                                                            wybrany = "wroc"
+                                                                                      
+                                if wybrany == "latwy":
+                                    tekst_latwy = tekst_format("ŁATWY", czcionka, 75, bialy)
+                                else:
+                                    tekst_latwy = tekst_format("ŁATWY", czcionka, 75, czarny)
+                                if wybrany == "sredni":
+                                    tekst_sredni = tekst_format("ŚREDNI", czcionka, 75, bialy)
+                                else:
+                                    tekst_sredni = tekst_format("ŚREDNI", czcionka, 75, czarny)
+                                if wybrany == "trudny":
+                                    tekst_trudny = tekst_format("TRUDNY", czcionka, 75, bialy)
+                                else:
+                                    tekst_trudny = tekst_format("TRUDNY", czcionka, 75, czarny)
+                                tekst_poziom = tekst_format("WYBIERZ POZIOM TRUDNOŚCI", czcionka, 80,zolty)
+
+                                poziom_rect = tekst_poziom.get_rect()
+                                latwy_rect = tekst_latwy.get_rect()
+                                sredni_rect = tekst_sredni.get_rect()
+                                trudny_rect = tekst_trudny.get_rect()
+                        
+                                screen.blit(tekst_poziom, (ekran_szerokosc/2 - (poziom_rect[2]/2), 80))
+                                screen.blit(tekst_latwy, (ekran_szerokosc/2 - (latwy_rect[2]/2), 300))
+                                screen.blit(tekst_sredni, (ekran_szerokosc/2 - (sredni_rect[2]/2), 360))
+                                screen.blit(tekst_trudny, (ekran_szerokosc/2 - (trudny_rect[2]/2), 420))
+
+                                rext = pygame.mouse.get_pos()
+                                latwy1 = pygame.Rect(screen.blit(tekst_latwy, (ekran_szerokosc/2 - (latwy_rect[2]/2), 300)))
+                                sredni1 = pygame.Rect(screen.blit(tekst_sredni, (ekran_szerokosc/2 - (sredni_rect[2]/2), 360)))
+                                trudny1 = pygame.Rect(screen.blit(tekst_trudny, (ekran_szerokosc/2 - (trudny_rect[2]/2), 420)))
+                                koli1 = latwy1.collidepoint(rext)
+                                koli2 = sredni1.collidepoint(rext)
+                                koli3 = trudny1.collidepoint(rext)
+                                        
+                                if koli1 == True:
+                                    wybrany = "latwy"
+                                elif koli2 == True:
+                                    wybrany = "sredni"
+                                elif koli3 == True:
+                                    wybrany = "trudny"
+
+                                pygame.display.update()
+                                
+
+                        if wybrany == "zasady":
+                            zasady = True
+                            wybrany = "wroc"
+                            while zasady:
+                                screen.fill(niebiski)
+                                tekst1 = tekst_format("Po wybraniu trudnośći zostanie włączona kamerka gotowa by zrobić zdjęcie", czcionka, 30, zolty)
+                                tekst1_rect = tekst1.get_rect()
+                                screen.blit(tekst1, (ekran_szerokosc/2 - (tekst1_rect[2]/2), 60))
+                                tekst2 = tekst_format("By wykonać zdjęcie naciśnij 's'", czcionka, 30, zolty)
+                                tekst2_rect = tekst2.get_rect()
+                                screen.blit(tekst2, (ekran_szerokosc/2 - (tekst2_rect[2]/2), 120))
+                                tekst3 = tekst_format("Jeżeli się rozmyślisz naciśnij 'q' aby zamknąć grę", czcionka, 30, zolty)
+                                tekst3_rect = tekst3.get_rect()
+                                screen.blit(tekst3, (ekran_szerokosc/2 - (tekst3_rect[2]/2), 180))
+                                tekst4 = tekst_format("Gdy zdjęcie zostanie wywołane naciśnij LPM na nie, aby pomieszać obraz", czcionka, 30, zolty)
+                                tekst4_rect = tekst4.get_rect()
+                                screen.blit(tekst4, (ekran_szerokosc/2 - (tekst4_rect[2]/2), 240))
+                                wroc = tekst_format("Wróc", czcionka, 75, zolty)
+                                wroc_rect = wroc.get_rect()
+                                screen.blit(wroc, (ekran_szerokosc/2 - (wroc_rect[2]/2), 500))
+                                for event in pygame.event.get():
+
+                                    if event.type == pygame.QUIT:
+                                        pygame.quit()
+                                        quit()
+
+                                    if event.type == pygame.KEYDOWN and event.type == pygame.K_RETURN or event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                                        wybrany = "zasady"
+                                        zasady = False
+                                pygame.display.update()
+                                
+                        if wybrany == "quit":
+                            pygame.quit()
+                            quit()
+        
+                              
+            pygame.display.update()
+            
+main_menu()
+
+pygame.quit()
+quit()
+
